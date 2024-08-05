@@ -1,7 +1,7 @@
 const { Builder, By, Key, until } = require('selenium-webdriver');
 require('chromedriver');
 
-(async function example() {
+(async function LoginActuar1() {
     // Configuração do WebDriver (o path é automaticamente resolvido pelo chromedriver)
     let driver = await new Builder().forBrowser('chrome').build();
     try {
@@ -46,3 +46,4 @@ require('chromedriver');
         await driver.quit();
     }
 })();
+
