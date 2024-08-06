@@ -11,8 +11,8 @@ require('chromedriver');
         let email = "allan.nunes@actuar.com";
         let senha = "Actuar1508@";
          
-        let elementok = await driver.wait(until.elementLocated(By.className('btn btn-primary ladda-button')), 2000);
-        await driver.wait(until.elementIsVisible(elementok), 2000);
+        let elementok = await driver.wait(until.elementLocated(By.className('btn btn-primary ladda-button')), 50000);
+        await driver.wait(until.elementIsVisible(elementok), 50000);
            await elementok.click();
     
                  // 2. inserir o Email no campo Email
