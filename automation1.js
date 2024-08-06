@@ -17,12 +17,14 @@ require('chromedriver');
     
                  // 2. inserir o Email no campo Email
         
-        let elemento12 = await driver.findElement(By.xpath('//*[@id="Email"]/section/div/input'));
-        await elemento12.sendKeys(email);
+        let insertEmail = driver.wait(until.elementLocated(By.xpath('//*[@id="Email"]/section/div/input')), 3000);
+        await driver.wait(until.elementIsVisible(insertEmail), 30000);
+        await insertEmail.sendKeys(email);
         
         // 3. inserir a senha no campo senha
 
-        let elementosenha = await driver.findElement(By.xpath('//*[@id="Password"]/section/div/input'));
+        let elementosenha = await driver.wait(until.elementLocated(By.xpath('//*[@id="Password"]/section/div/input')), 3000);
+        await driver.wait(until.elementIsVisible(elementosenha), 30000)
         await elementosenha.sendKeys(senha);
         
         //clicar em enter para acessar
@@ -53,7 +55,23 @@ require('chromedriver');
         await driver.wait(until.elementIsVisible(elementVerPerfil), 30000)
         await elementVerPerfil.click()
 
-              // 10. Exibir uma mensagem no log (console)
+        let dataAtual = new Date();
+
+        async function ObterDataElemento() {
+            let DataDoElemento = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);;
+            await driver.wait(until.elementIsVisible(DataDoElemento), 30000)
+            let LerData = await DataDoElemento.getText();
+            return new Date(LerData);
+        }
+
+        let ElementoDataLogin = By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p');
+        let DataDologin = await ObterDataElemento(ElementoDataLogin)
+        console.log(DataDologin)
+        
+        
+
+
+        // 10. Exibir uma mensagem no log (console)
               await driver.wait(new Promise(resolve => setTimeout(resolve, 30000)));
             } finally {
                 // Finalizar a sessão do navegador
