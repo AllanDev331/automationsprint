@@ -67,13 +67,27 @@ require('chromedriver');
             let DataDoElemento = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);
             await driver.wait(until.elementIsVisible(DataDoElemento), 30000);
             let LerData = await DataDoElemento.getText();
-            return new Date(LerData);
+            let Data = new Date(LerData);
+            return Data
         }
+
+        // Função para formatar a data em yyyy-MM-dd
+    function formatarDataParaYYYYMMDD(data) {
+        let ano = data.getFullYear();
+        let mes = String(data.getMonth() + 1).padStart(2, '0'); // Meses são baseados em 0
+        let dia = String(data.getDate()).padStart(2, '0');
+         return `${ano}-${mes}-${dia}`;
+        }
+
 
         //Obter Data de login do cliente
         let ElementoDataLogin = By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p');
         let DataDologin = await ObterDataElemento(ElementoDataLogin)
         console.log(DataDologin)
+
+        // transformar na data correta
+        let dataloginformatada = formatarDataParaYYYYMMDD(DataDologin);
+        console.log(dataloginformatada)
         
         // Abrir Contas a Receber
         let ContasReceber = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[1]/i')), 30000)
@@ -97,13 +111,15 @@ require('chromedriver');
             return Numeric
         }
 
-        let ObterNumeroElemento = await TransformarEmNumber();
-        console.log(ObterNumeroElemento)
+        let ValorAberto = await TransformarEmNumber();
+        console.log(ValorAberto)
 
-        if(DataDologin = dataAtual){
-            await driver.executeScript(`alert('Cliente ta logando');`);
-        } else if(DataDologin >= Data2DiasAtras){
-            await driver.executeScript(`alert('cliente está logando ${DataDologin}');`);
+
+        if(dataloginformatada.getTime() >= Data2DiasAtras.getDate && ValorAberto < 1){
+            let DataDologinString = dataloginformatada.toLocaleDateString();
+            await driver.executeScript(`alert('cliente  está logando e está vigente ${DataDologinString}, ${ValorAberto}');`);
+        } else if(dataloginformatada.getTime() <= Data2DiasAtras.getTime() && ValorAberto > 0){
+            await driver.executeScript(`alert('cliente não está logando porém está vigente ${DataDologinString}, ${ValorAberto}');`);
         }else{
             await driver.executeScript(`alert('Deu erro saporra');`);
         }
