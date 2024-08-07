@@ -92,8 +92,8 @@ require('chromedriver');
             let ObterNumeroElemento = await ElementoValorAberto.getText();
             console.log(ObterNumeroElemento);
 
-            let ObterNumeroElemento = ElementoValorAberto.replace("R$", "").replace(/\./g, "").replace(",", ".");
-            let Numeric = parseFloat(ObterNumeroElemento);
+            let refatorar = ObterNumeroElemento.replace("R$", "").replace(/\./g, "").replace(",", ".");
+            let Numeric = parseFloat(refatorar);
             return Numeric
         }
 
@@ -107,7 +107,7 @@ require('chromedriver');
         }else{
             await driver.executeScript(`alert('Deu erro saporra');`);
         }
-
+ 
 
         // 10. Exibir uma mensagem no log (console)
               await driver.wait(new Promise(resolve => setTimeout(resolve, 30000)));
