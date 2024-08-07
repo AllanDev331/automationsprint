@@ -1,7 +1,7 @@
 const { Builder, By, Key, until } = require('selenium-webdriver');
 require('chromedriver');
 
-(async function example() {
+(async function Autoamacao() {
     // Configuração do WebDriver (o path é automaticamente resolvido pelo chromedriver)
     let driver = await new Builder().forBrowser('chrome').build();
     try {
@@ -55,20 +55,58 @@ require('chromedriver');
         await driver.wait(until.elementIsVisible(elementVerPerfil), 30000)
         await elementVerPerfil.click()
 
+        // retirar data atual
         let dataAtual = new Date();
+        console.log(dataAtual)
+        // retirar data de 2 dias atrás
+        let Data2DiasAtras = new Date();
+        Data2DiasAtras.setDate(Data2DiasAtras.getDate() - 2)
 
+        //Transformar data de login em formato Date
         async function ObterDataElemento() {
-            let DataDoElemento = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);;
-            await driver.wait(until.elementIsVisible(DataDoElemento), 30000)
+            let DataDoElemento = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);
+            await driver.wait(until.elementIsVisible(DataDoElemento), 30000);
             let LerData = await DataDoElemento.getText();
             return new Date(LerData);
         }
 
+        //Obter Data de login do cliente
         let ElementoDataLogin = By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p');
         let DataDologin = await ObterDataElemento(ElementoDataLogin)
         console.log(DataDologin)
         
+        // Abrir Contas a Receber
+        let ContasReceber = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[1]/i')), 30000)
+        await driver.wait(until.elementIsVisible(ContasReceber), 30000)
+        await ContasReceber.click()
+
+        //  Clicar em Atualizar
+        let ClickAtualizar = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[2]/div/app-efetuar-novo-recebimento/app-dxgrid/app-grouped/section/div[2]/div[1]/div/div[2]/div/button')), 30000);
+        await driver.wait(until.elementIsVisible(ClickAtualizar), 30000)
+        await ClickAtualizar.click();
         
+        //Função para transformar em number
+        async function TransformarEmNumber (){
+            let ElementoValorAberto = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[2]/div/app-efetuar-novo-recebimento/app-dxgrid/app-grouped/section/div[2]/div[2]/div[1]/div[4]/p')), 30000);
+            await driver.wait(until.elementIsVisible(ElementoValorAberto), 30000);
+            let ObterNumeroElemento = await ElementoValorAberto.getText();
+            console.log(ObterNumeroElemento);
+
+            let ObterNumeroElemento = ElementoValorAberto.replace("R$", "").replace(/\./g, "").replace(",", ".");
+            let Numeric = parseFloat(ObterNumeroElemento);
+            return Numeric
+        }
+
+        let ObterNumeroElemento = await TransformarEmNumber();
+        console.log(ObterNumeroElemento)
+
+        if(DataDologin = dataAtual){
+            await driver.executeScript(`alert('Cliente ta logando');`);
+        } else if(DataDologin >= Data2DiasAtras){
+            await driver.executeScript(`alert('cliente está logando ${DataDologin}');`);
+        }else{
+            await driver.executeScript(`alert('Deu erro saporra');`);
+        }
 
 
         // 10. Exibir uma mensagem no log (console)
