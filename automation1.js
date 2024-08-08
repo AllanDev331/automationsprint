@@ -58,37 +58,43 @@ require('chromedriver');
         // retirar data atual
         let dataAtual = new Date();
         console.log(dataAtual)
+
         // retirar data de 2 dias atrás
         let Data2DiasAtras = new Date();
         Data2DiasAtras.setDate(Data2DiasAtras.getDate() - 2)
+        console.log(Data2DiasAtras)
 
-        //Transformar data de login em formato Date
-        async function ObterDataElemento() {
-            let DataDoElemento = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);
-            await driver.wait(until.elementIsVisible(DataDoElemento), 30000);
-            let LerData = await DataDoElemento.getText();
-            let Data = new Date(LerData);
-            return Data
-        }
-
-        // Função para formatar a data em yyyy-MM-dd
-    function formatarDataParaYYYYMMDD(data) {
-        let ano = data.getFullYear();
-        let mes = String(data.getMonth() + 1).padStart(2, '0'); // Meses são baseados em 0
-        let dia = String(data.getDate()).padStart(2, '0');
-         return `${ano}-${mes}-${dia}`;
-        }
-
+        // 30 dias cliente de cancelamento
+        let Data30DiasAtras = new Date();
+        Data30DiasAtras.setDate(Data30DiasAtras.getDate() - 30)
+        console.log(Data30DiasAtras)
 
         //Obter Data de login do cliente
-        let ElementoDataLogin = By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p');
-        let DataDologin = await ObterDataElemento(ElementoDataLogin)
-        console.log(DataDologin)
+        function converterStringParaData(dataString) {
+            // Separar a parte da data da parte da hora
+               let [dataParte, horaParte] = dataString.split(' ');
+            // Separar o dia, mês e ano
+                let [dia, mes, ano] = dataParte.split('/');
+            // Separar a hora e minutos
+                let [hora, minutos] = horaParte.split(':');
+            // Criar um novo objeto Date no formato correto
+            let dataFormatada = new Date(`${ano}-${mes}-${dia}T${hora}:${minutos}:00`);
 
-        // transformar na data correta
-        let dataloginformatada = formatarDataParaYYYYMMDD(DataDologin);
-        console.log(dataloginformatada)
+            return dataFormatada;
+        }
+
+        let ElementoDataLogin = await driver.wait(until.elementLocated(By.xpath('//*[@id="core"]/main/mat-sidenav-container/mat-sidenav-content/div/div/app-clientes-module/app-perfil-cliente/div/div/div/app-perfil-cliente-header/div/section/div[2]/div/div/div[1]/div/div[2]/div/p')), 30000);
+        await driver.wait(until.elementIsVisible(ElementoDataLogin), 30000);
+        let ObterDataElemento = await ElementoDataLogin.getText();
+        console.log(ObterDataElemento);
+
+        if (typeof ObterDataElemento === 'string') {
+            console.log("O valor é uma string.");
+        }
         
+        let DataLogin = converterStringParaData(ObterDataElemento);
+        console.log(DataLogin)
+    
         // Abrir Contas a Receber
         let ContasReceber = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[1]/i')), 30000)
         await driver.wait(until.elementIsVisible(ContasReceber), 30000)
@@ -113,15 +119,48 @@ require('chromedriver');
 
         let ValorAberto = await TransformarEmNumber();
         console.log(ValorAberto)
+        
+        let Sprint = 'Sprint 31'
+        
+        async function clickComentarios (){
+            let comentarios = await driver.wait(until.elementLocated(By.xpath('//*[@id="comentaros-perfil"]/div[1]')), 30000);
+            await driver.wait(until.elementIsVisible(comentarios), 30000)
+            await comentarios.click()
+        
+            let NovoComentario = await driver.wait(until.elementLocated(By.xpath('//*[@id="comentaros-perfil"]/div[2]/div/div/div[1]/button')), 30000);
+            await driver.wait(until.elementIsVisible(NovoComentario), 30000)
+            await NovoComentario.click()
+
+            let Descricao = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[1]/input')), 30000);
+            await driver.wait(until.elementIsVisible(Descricao), 30000)
+            await Descricao.sendKeys(Sprint)
+        }
+        
 
 
-        if(dataloginformatada.getTime() >= Data2DiasAtras.getDate && ValorAberto < 1){
-            let DataDologinString = dataloginformatada.toLocaleDateString();
-            await driver.executeScript(`alert('cliente  está logando e está vigente ${DataDologinString}, ${ValorAberto}');`);
-        } else if(dataloginformatada.getTime() <= Data2DiasAtras.getTime() && ValorAberto > 0){
-            await driver.executeScript(`alert('cliente não está logando porém está vigente ${DataDologinString}, ${ValorAberto}');`);
-        }else{
-            await driver.executeScript(`alert('Deu erro saporra');`);
+        if(DataLogin.getTime() >= Data2DiasAtras.getTime() && ValorAberto === 0){  //Data do login maior ou = 2 dias atrás e valor aberto = a 0
+           
+            await clickComentarios();
+            
+        }else if(DataLogin.getTime() >= Data2DiasAtras.getTime() && ValorAberto > 0){ //Data do login maior ou = 2 dias atrás e valor aberto maior que 0
+
+            await clickComentarios();
+
+
+        }else if(DataLogin.getTime() < Data2DiasAtras.getTime() && ValorAberto > 0){ //Data do login menor ou = 2 dias atrás e valor aberto maior que 0
+            
+            await clickComentarios();
+        
+        }else if(DataLogin.getTime() < Data2DiasAtras.getTime() && ValorAberto > 0){ //Data do login menor que 2 dias atrás e valor em abreto maior que 0
+            
+             await clickComentarios();
+            
+        }else if(DataLogin.getTime() <= Data2DiasAtras.getTime() && ValorAberto < 0){
+
+            await clickComentarios(); 
+
+        }else {
+            await driver.executeScript(`alert('deu certo não');`); 
         }
  
 
