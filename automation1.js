@@ -8,10 +8,11 @@ require('chromedriver');
 
         // 1. Abrir a URL Actuar
         await driver.get('https://app.actuar.com/#/common/login');
-        let email = "guilherme.morais@actuar.com";
-        let senha = "Actuar.062";
-        let IDcliente = "AP1378" 
-        let idEntrarACT = '6364f105-ae2c-4522-a722-e19483af4ece'
+        let email = "allan.nunes@actuar.com";
+        let senha = "Actuar1508@";
+        let IDcliente = "YT0050" 
+        let idEntrarACT = 'e370daff-5407-4844-9440-89fcba96105c'
+        let Sprint = 'SPRINT 34 -  / Valor em aberto'
         //let MeuNome = "Allan Raphael"
 
         let elementok = await driver.wait(until.elementLocated(By.className('btn btn-primary ladda-button')), 50000);
@@ -105,9 +106,20 @@ require('chromedriver');
             console.log("O valor é uma string.");
         }
         
-        let DataLogin = converterStringParaData(ObterDataElemento);
-        console.log(DataLogin)
+        let DataAtString = converterStringParaData(dataAtual);
+        console.log(DataAtString)
     
+        //Clicar na assinatura
+        let ClickAssinatura = await driver.wait(until.elementLocated(by.xpath('//*[@id="assinaturas-perfil"]/div[1]/i')), 30000)
+        await driver.wait(until.elementIsVisible(ClickAssinatura), 30000)
+        await ClickAssinatura.click()
+
+        //obter data de finalização 
+        let obterDataFim = await driver.wait(until.elementLocated(by.xpath('//*[@id="assinaturas-perfil"]/div[1]/i')), 30000)
+        await driver.wait(until.elementIsVisible(obterDataFim), 30000)
+        let DataFim = await obterDataFim.getText();
+        console.log(DataFim)
+
         // Abrir Contas a Receber
         let ContasReceber = await driver.wait(until.elementLocated(By.xpath('//*[@id="financeiro-perfil"]/div[1]/i')), 30000)
         await driver.wait(until.elementIsVisible(ContasReceber), 30000)
@@ -132,8 +144,6 @@ require('chromedriver');
 
         let ValorAberto = await TransformarEmNumber();
         console.log(ValorAberto)
-        
-        let Sprint = 'Sprint 31'
         
         async function clickComentarios (){
             let comentarios = await driver.wait(until.elementLocated(By.xpath('//*[@id="comentaros-perfil"]/div[1]')), 30000);
@@ -165,26 +175,26 @@ require('chromedriver');
             await clickComentarios();
             let Conteudo = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[2]/textarea')), 30000);
             await driver.wait(until.elementIsVisible(Conteudo), 30000)
-            await Conteudo.sendKeys(`Último Login: ${ObterDataElemento}\nValor Aberto: R$${ValorAberto}\nPague.lá: Não tem.\nObs: Cliente vigente e logando normalmente.\nMensagem Ativa Enviada \nTicket#:`);
+            await Conteudo.sendKeys(`Mensagem Ativa Enviada: ${DataAtString}\n Tentativas de contato:: R$${ValorAberto}\nObs:.cliente vigente e sem valores em aberto.\nenviado mensagem ativa pela Blip.\nTicket#:`);
             await ClicarEmConcluir()
 
-        }else if(DataLogin.getTime() >= Data3DiasAtras.getTime() && ValorAberto > 0){ //Data do login maior ou = 3 dias atrás e valor aberto maior que 0
+        }else if(DataLogin.getTime() >= Data3DiasAtras.getTime() && ValorAberto > 0 && DataFim.getTime() > DataLogin.getTime()){ //Data do login maior ou = 3 dias atrás e valor aberto maior que 0 e Antes da data de finalização 
 
             await clickComentarios();
             let Conteudo = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[2]/textarea')), 30000);
             await driver.wait(until.elementIsVisible(Conteudo), 30000)
-            await Conteudo.sendKeys(`Último Login: ${ObterDataElemento}\nValor Aberto: R$${ValorAberto}\nPague.lá: Não tem.\nObs: Cliente com valor em aberto e logando, enviado mensagem ativa para cobrança.\nMensagem Ativa Enviada \nTicket#:`);
+            await Conteudo.sendKeys(`Mensagem Ativa Enviada: ${DataAtString}\n Tentativas de contato:1\nObs:.cliente logando e com valor em aberto já disponível para pagamento.\nenviado mensagem ativa pela Blip.\nTicket#:`);
             await ClicarEmConcluir()
 
-        }else if(DataLogin.getTime() > Data7DiasAtras.getTime() && DataLogin.getTime() < Data3DiasAtras.getTime() && ValorAberto > 0){ //Data do login menor que 3 dias atrás e valor aberto maior que 0
+        }else if(DataLogin.getTime() > Data7DiasAtras.getTime() && DataLogin.getTime() < Data3DiasAtras.getTime() && ValorAberto > 0 && DataFim.getTime() > dataAtual.getTime() ){ //Data do login menor que 3 dias atrás e valor aberto maior que 0 e data de finalização maior que hoje
             
             await clickComentarios();
             let Conteudo = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[2]/textarea')), 30000);
             await driver.wait(until.elementIsVisible(Conteudo), 30000)
-            await Conteudo.sendKeys(`Último Login: ${ObterDataElemento}\nValor Aberto: R$${ValorAberto}\nPague.lá: Não tem.\nObs: Cliente com valor em aberto e logando, enviado mensagem ativa para cobrança.\nMensagem Ativa Enviada \nTicket#:`);
+            await Conteudo.sendKeys(`Mensagem Ativa Enviada: ${DataAtString}\n Tentativas de contato: 1\nObs:.Cliente vigente porém não logando, ainda no período de 5 dias, enviado mensagem ativa para entender o motivo de não estar logando.\nenviado mensagem ativa pela Blip.\nTicket#:`);
             await ClicarEmConcluir()
 
-        }else if(DataLogin.getTime() > Data7DiasAtras.getTime() && DataLogin.getTime() <= Data3DiasAtras.getTime() && ValorAberto === 0){ //Data do login menor que 3 dias atrás e valor em aberto igual a 0
+        }else if(DataLogin.getTime() > Data7DiasAtras.getTime() && DataLogin.getTime() <= Data3DiasAtras.getTime() && ValorAberto === 0 && DataFim.getTime() > dataAtual.getTime()){ //Data do login menor que 3 dias atrás e valor em aberto igual a 0
             
              await clickComentarios();
              let Conteudo = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[2]/textarea')), 30000);
