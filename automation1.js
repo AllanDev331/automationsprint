@@ -202,7 +202,7 @@ require('chromedriver');
              await Conteudo.sendKeys(`Último Login: ${ObterDataElemento}\nValor Aberto: R$${ValorAberto}\nPague.lá: Não tem.\nObs: Cliente vigente porém não logando, enviado mensagem ativa para entender o motivo de não estar logando.\nMensagem Ativa Enviada \nTicket#:`);
              await ClicarEmConcluir()
 
-        }else if( DataLogin.getTime() < Data30DiasAtras.getTime() && ValorAberto > 0 && DataLogin.getTime() > Meses5Atras){ //Data do login menor ou = 30 dias atrás e valor em aberto maior que 1
+        }else if( DataLogin.getTime() < Data30DiasAtras.getTime() && ValorAberto > 0 && DataLogin.getTime() > Meses5Atras){ //Data do login menor ou = 30 dias atrás e valor em aberto maior que 0
             
             await clickComentarios(); 
             let Conteudo = await driver.wait(until.elementLocated(By.xpath('//*[@id="modal-comentario"]/div/div/form/div[2]/div/div[2]/textarea')), 30000);
